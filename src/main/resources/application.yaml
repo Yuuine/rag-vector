@@ -1,1 +1,38 @@
-spring.application.name=rag-vector
+server:
+  port: 8080
+
+spring:
+  application:
+    name: rag-vector
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+elasticsearch:
+  host: localhost
+  port: 9200
+  username: elastic
+  password: xxxxxxxxxxxxxxxx # <- 填写你的es密码
+
+embedding:
+  api:
+    model: text-embedding-v4
+    dimension: 1024
+    api-key: "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx" # <- 填写你的 api key
+
+#日志
+logging:
+  level:
+    anthony.ragvector: debug
+
+  file:
+    name: ./logs/application.log        # 日志输出路径
+
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB       # 单个文件最大 10MB
+      max-history: 7            # 保留 7 个历史文件
+      total-size-cap: 1GB    # 总日志大小上限
+      file-name-pattern: ./logs/application.%d{yyyy-MM-dd}.%i.log
