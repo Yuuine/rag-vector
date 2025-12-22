@@ -24,7 +24,7 @@ embedding:
 #日志
 logging:
   level:
-    anthony.ragvector: debug
+    yuuine.ragvector: debug
 
   file:
     name: ./logs/application.log        # 日志输出路径
@@ -34,4 +34,3 @@ logging:
       max-file-size: 10MB       # 单个文件最大 10MB
       max-history: 7            # 保留 7 个历史文件
       total-size-cap: 1GB    # 总日志大小上限
-      file-name-pattern: ./logs/application.%d{yyyy-MM-dd}.%i.log
