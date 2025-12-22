@@ -25,6 +25,10 @@ import java.util.List;
  * 2. 批量调用 DashScope Embedding API
  * 3. 将 embedding 结果 + 原始 chunk 映射为 RagChunkDocument
  * 4. 构建 VectorAddResult，标记每个 chunk 的成功/失败状态
+ * <p>
+ * 1. 接收 rag-app 传入的 search 请求
+ * 2. 调用 DashScope Vector Search API
+ * 3. 将 embedding 结果 vector 返回
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -162,4 +166,35 @@ public class EmbeddingServiceImpl implements EmbeddingService {
 
         return responseResult;
     }
+
+    @Override
+    public float[] embedQuery(String query) {
+        if (query == null || query.isEmpty()) {
+            throw new IllegalArgumentException("Query text cannot be null or empty");
+        }
+
+        try {
+            // 调用 DashScope Embedding API，单条文本也用 list 包裹
+            TextEmbeddingResult result = dashScopeEmbeddingUtil.generateEmbeddingResult(List.of(query));
+            List<TextEmbeddingResultItem> embeddings = result.getOutput().getEmbeddings();
+
+            if (embeddings.isEmpty()) {
+                throw new RuntimeException("DashScope returned empty embedding");
+            }
+
+            // 取第一个 embedding，理论上只有一条返回
+            List<Double> doubleList = embeddings.get(0).getEmbedding();
+            float[] vector = new float[doubleList.size()];
+            for (int i = 0; i < doubleList.size(); i++) {
+                vector[i] = doubleList.get(i).floatValue();
+            }
+
+            return vector;
+
+        } catch (Exception e) {
+            log.error("Failed to generate query embedding", e);
+            throw new RuntimeException("Query embedding failed: " + e.getMessage(), e);
+        }
+    }
+
 }

@@ -5,10 +5,12 @@ import org.springframework.web.bind.annotation.*;
 import yuuine.ragvector.domain.embedding.model.ResponseResult;
 import yuuine.ragvector.domain.embedding.service.EmbeddingService;
 import yuuine.ragvector.domain.es.model.RagChunkDocument;
-import yuuine.ragvector.domain.es.Repository.RagChunkDocumentRepository;
-import yuuine.ragvector.domain.es.service.ESAddService;
+import yuuine.ragvector.domain.es.service.VectorAddService;
+import yuuine.ragvector.domain.es.service.VectorSearchService;
 import yuuine.ragvector.dto.request.VectorAddRequest;
+import yuuine.ragvector.dto.request.VectorSearchRequest;
 import yuuine.ragvector.dto.response.VectorAddResult;
+import yuuine.ragvector.dto.response.VectorSearchResult;
 
 import java.util.List;
 
@@ -18,7 +20,8 @@ import java.util.List;
 public class VectorController {
 
     private final EmbeddingService embeddingService;
-    private final ESAddService esAddService;
+    private final VectorAddService vectorAddService;
+    private final VectorSearchService vectorSearchService;
 
     @PostMapping("/add")
     public VectorAddResult add(
@@ -30,8 +33,17 @@ public class VectorController {
         VectorAddResult vectorAddResult = responseResult.getVectorAddResult();
 
         // 将 List<RagChunkDocument> 对象保存到 ES 中
-        esAddService.saveAll(ragChunkDocuments);
+        vectorAddService.saveAll(ragChunkDocuments);
 
         return vectorAddResult;
+    }
+
+    @PostMapping("/search")
+    public List<VectorSearchResult> search(
+            @RequestBody VectorSearchRequest vectorSearchRequest) {
+
+        /* 将 vectorSearchRequest 传给 VectorSearchService
+           返回一个 List<VectorSearchResult> 对象  */
+        return vectorSearchService.search(vectorSearchRequest);
     }
 }

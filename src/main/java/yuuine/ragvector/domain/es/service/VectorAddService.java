@@ -11,15 +11,17 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class ESAddService {
+public class VectorAddService {
 
     private final RagChunkDocumentRepository ragChunkDocumentRepository;
 
     public void saveAll(List<RagChunkDocument> documents) {
 
+        log.info("开始保存向量文档到ES，文档数量: {}", documents.size());
+
         ragChunkDocumentRepository.saveAll(documents);
 
-        log.info("ESAddService: saveAll: documents={}", documents.size());
+        log.info("成功保存向量文档到ES，文档数量: {}", documents.size());
     }
 
 }
