@@ -1,4 +1,4 @@
-package yuuine.ragvector.domain.model;
+package yuuine.ragvector.domain.embedding.model;
 
 import lombok.Data;
 
@@ -17,5 +17,6 @@ public class VectorDocument {
     private Integer embeddingDim;
     private String model;               // text-embedding-v4
     private Long createdAt;
+
 }
 

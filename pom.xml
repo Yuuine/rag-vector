@@ -46,12 +46,12 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Elasticsearch Java Client -->
+        <!-- Elasticsearch -->
         <dependency>
-            <groupId>co.elastic.clients</groupId>
-            <artifactId>elasticsearch-java</artifactId>
-            <version>8.10.0</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
         </dependency>
+
         <!--  DashScope Java SDK  -->
         <dependency>
             <groupId>com.alibaba</groupId>

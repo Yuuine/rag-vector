@@ -1,4 +1,4 @@
-package yuuine.ragvector.domain.model;
+package yuuine.ragvector.domain.embedding.model;
 
 import lombok.Data;
 

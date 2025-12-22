@@ -10,11 +10,10 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
 
-elasticsearch:
-  host: localhost
-  port: 9200
-  username: elastic
-  password: xxxxxxxxxxxxxxxx # <- 填写你的es密码
+  elasticsearch:
+    uris: localhost:9200
+    username: elastic
+    password: xxxxxxxxxxxxxxxx # <- 填写你的es密码
 
 embedding:
   api:
