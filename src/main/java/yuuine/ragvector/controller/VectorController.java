@@ -5,7 +5,8 @@ import org.springframework.web.bind.annotation.*;
 import yuuine.ragvector.domain.embedding.model.ResponseResult;
 import yuuine.ragvector.domain.embedding.service.EmbeddingService;
 import yuuine.ragvector.domain.es.model.RagChunkDocument;
-import yuuine.ragvector.domain.es.service.RagChunkDocumentRepository;
+import yuuine.ragvector.domain.es.Repository.RagChunkDocumentRepository;
+import yuuine.ragvector.domain.es.service.ESAddService;
 import yuuine.ragvector.dto.request.VectorAddRequest;
 import yuuine.ragvector.dto.response.VectorAddResult;
 
@@ -17,7 +18,7 @@ import java.util.List;
 public class VectorController {
 
     private final EmbeddingService embeddingService;
-    private final RagChunkDocumentRepository ragChunkDocumentRepository;
+    private final ESAddService esAddService;
 
     @PostMapping("/add")
     public VectorAddResult add(
@@ -27,14 +28,9 @@ public class VectorController {
         ResponseResult responseResult = embeddingService.embedBatch(chunks);
         List<RagChunkDocument> ragChunkDocuments = responseResult.getRagChunkDocuments();
         VectorAddResult vectorAddResult = responseResult.getVectorAddResult();
-//
-//        // 将 List<RagChunkDocument> 对象保存到 ES 中
-//        try {
-//            ragChunkDocumentRepository.saveAll(ragChunkDocuments);
-//        } catch (Exception e) {
-//            //TODO: 如果 ES 保存失败，根据需求决定是否要修改返回结果
-//            e.printStackTrace();
-//        }
+
+        // 将 List<RagChunkDocument> 对象保存到 ES 中
+        esAddService.saveAll(ragChunkDocuments);
 
         return vectorAddResult;
     }

@@ -1,4 +1,4 @@
-package yuuine.ragvector.domain.es.model; // 替换为你的包名
+package yuuine.ragvector.domain.es.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
