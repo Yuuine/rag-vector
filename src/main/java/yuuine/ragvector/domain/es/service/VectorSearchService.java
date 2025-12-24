@@ -2,6 +2,7 @@ package yuuine.ragvector.domain.es.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.stereotype.Service;
 import yuuine.ragvector.domain.embedding.service.EmbeddingService;
 import yuuine.ragvector.domain.es.Repository.RagChunkDocumentRepository;
@@ -38,20 +39,21 @@ public class VectorSearchService {
             queryVectorList.add(v);
         }
 
-        List<RagChunkDocument> docs =
+        List<SearchHit<RagChunkDocument>> searchHits =
                 repository.knnSearch(queryVectorList, topK, topK * 10);
 
-        log.info("向量检索完成，返回结果数量: {}", docs.size());
 
-        // 3. 结果转换（领域对象 → DTO）
-        List<VectorSearchResult> results = docs.stream().map(doc -> {
+        log.info("向量检索完成，返回结果数量: {}", searchHits.size());
+
+        // 3. 结果转换
+        List<VectorSearchResult> results = searchHits.stream().map(hit -> {
+            RagChunkDocument doc = hit.getContent();  // 获取文档实体
             VectorSearchResult r = new VectorSearchResult();
             r.setChunkId(doc.getChunkId());
             r.setSource(doc.getSource());
             r.setChunkIndex(doc.getChunkIndex());
             r.setContent(doc.getContent());
-            // Spring Data ES 默认不返回 score
-            r.setScore(null);
+            r.setScore(hit.getScore());  // 从 SearchHit 获取分数（Float 类型，非 null）
             return r;
         }).collect(Collectors.toList());
 

@@ -30,12 +30,11 @@ public class VectorController {
         // 将 chunks 进行向量化处理，得到一个 List<RagChunkDocument> 对象和处理结果对象，包含所有的 chunk 的向量化结果
         ResponseResult responseResult = embeddingService.embedBatch(chunks);
         List<RagChunkDocument> ragChunkDocuments = responseResult.getRagChunkDocuments();
-        VectorAddResult vectorAddResult = responseResult.getVectorAddResult();
 
         // 将 List<RagChunkDocument> 对象保存到 ES 中
         vectorAddService.saveAll(ragChunkDocuments);
 
-        return vectorAddResult;
+        return responseResult.getVectorAddResult();
     }
 
     @PostMapping("/search")
