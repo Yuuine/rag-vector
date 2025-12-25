@@ -1,14 +1,12 @@
 # RAG Vector Service
 
-RAG Vector Service 是一个面向检索增强生成（RAG）场景的向量存储与语义检索服务，支持将文本块(chunk)自动嵌入为高维向量并持久化到
-Elasticsearch，同时提供基于向量相似度的语义搜索能力。
+RAG Vector Service 提供面向 RAG 场景的向量存储与语义检索，将文本块自动嵌入高维向量并支持高效 Elasticsearch 搜索。
 
 ## 核心功能
 
-- **自动向量化**：调用大模型 Embedding API 将文本转换为向量
-- **向量存储**：向量写入 Elasticsearch，支持高效 KNN 检索
-- **混合检索**: BM25 + knn 混合检索
-- **语义检索**：基于余弦相似度返回 Top-K 最相关文本块
+- **文本向量化与语义检索**：调用大模型 Embedding API 将文本转换为高维向量，并基于余弦相似度返回最相关的 Top-K 文本块
+- **向量存储与高效 KNN 检索**：将向量写入 Elasticsearch，实现快速语义搜索
+- **混合检索（BM25 + KNN + RRF）**: 结合 IK 分词器的 BM25 词面匹配与 KNN 语义匹配，通过 RRF 算法融合排序，提高检索准确性和召回率
 
 ### 可配置项
 
@@ -49,20 +47,41 @@ mapping 配置：
   },
   "mappings": {
     "properties": {
-      "chunkId": { "type": "keyword" },
-      "fileMd5": { "type": "keyword" },
-      "source": { "type": "text" },
-      "chunkIndex": { "type": "integer" },
-      "content": { "type": "text" },
-      "charCount": { "type": "integer" },
+      "chunkId": {
+        "type": "keyword"
+      },
+      "fileMd5": {
+        "type": "keyword"
+      },
+      "source": {
+        "type": "text"
+      },
+      "chunkIndex": {
+        "type": "integer"
+      },
+      "content": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart"
+      },
+      "charCount": {
+        "type": "integer"
+      },
       "embedding": {
         "type": "dense_vector",
         "dims": 1024,
         "index": true,
         "similarity": "cosine"
       },
-      "model": { "type": "keyword" },
-      "createdAt": { "type": "date" }
+      "embeddingDim": {
+        "type": "integer"
+      },
+      "model": {
+        "type": "keyword"
+      },
+      "createdAt": {
+        "type": "date"
+      }
     }
   }
 }
@@ -78,3 +97,4 @@ mapping 配置：
 
 - 分布式向量搜索引擎 [Elasticsearch](https://www.elastic.co/elasticsearch/)
 - 阿里云百炼大模型平台（Embedding 服务） [DashScope](https://dashscope.aliyun.com/)
+- ik 分词器 [IK Analyzer](https://github.com/medcl/elasticsearch-analysis-ik)

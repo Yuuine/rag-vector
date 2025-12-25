@@ -31,7 +31,7 @@ public class RagChunkDocument {
     @Field(type = FieldType.Integer)
     private Integer chunkIndex;
 
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text, analyzer = "ik_max_word")
     private String content;
 
     @Field(type = FieldType.Integer)
