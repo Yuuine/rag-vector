@@ -23,4 +23,16 @@ public interface RagChunkDocumentRepository
             }
             """)
     List<SearchHit<RagChunkDocument>> knnSearch(List<Float> vector, int k, int numCandidates);
+
+    @Query("""
+            {
+              "match": {
+                "content": {
+                  "query": "?0"
+                }
+              }
+            }
+            """)
+    List<SearchHit<RagChunkDocument>> bm25Search(String queryText);
+
 }

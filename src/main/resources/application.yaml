@@ -9,10 +9,9 @@ spring:
       enabled: true
       max-file-size: 100MB
       max-request-size: 100MB
-
   elasticsearch:
     uris: localhost:9200
-    username: elastic
+    username: elastic          # 默认用户
     password: xxxxxxxxxxxxxxxx # <- 填写你的es密码
 
 embedding:
@@ -21,16 +20,27 @@ embedding:
     dimension: 1024
     api-key: "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx" # <- 填写你的 api key
 
-#日志
+app:
+  rag:
+    retrieval:
+      hybrid-enabled: true        # 是否启用混合检索
+      recall-top-k: 5            # 检索时返回的 Top-K 结果数量
+      candidate-multiplier: 10    # kNN 候选集倍数
+      rrf:
+        k: 60                     # 平滑常数
+        text-weight: 1.0          # 文本检索（BM25）结果的权重
+        vector-weight: 1.0        # 向量检索（kNN）结果的权重
+        final-top-k: 5            #  最终返回的 Top-K 结果数量
+
 logging:
   level:
-    yuuine.ragvector: debug
+    root: INFO
 
   file:
-    name: ./logs/application.log        # 日志输出路径
+    name: ./logs/application.log
 
   logback:
     rollingpolicy:
-      max-file-size: 10MB       # 单个文件最大 10MB
-      max-history: 7            # 保留 7 个历史文件
-      total-size-cap: 1GB    # 总日志大小上限
+      max-file-size: 10MB
+      max-history: 7
+      total-size-cap: 1GB

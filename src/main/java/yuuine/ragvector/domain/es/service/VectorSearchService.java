@@ -4,12 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.stereotype.Service;
+import yuuine.ragvector.config.RetrievalProperties;
 import yuuine.ragvector.domain.embedding.service.EmbeddingService;
-import yuuine.ragvector.domain.es.Repository.RagChunkDocumentRepository;
 import yuuine.ragvector.domain.es.model.RagChunkDocument;
 import yuuine.ragvector.dto.request.VectorSearchRequest;
 import yuuine.ragvector.dto.response.VectorSearchResult;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,40 +21,39 @@ import java.util.stream.Collectors;
 public class VectorSearchService {
 
     private final EmbeddingService embeddingService;
-    private final RagChunkDocumentRepository repository;
+    private final RagRetrievalService ragRetrievalService;
+    private final RetrievalProperties retrievalProperties;
 
-    public List<VectorSearchResult> search(VectorSearchRequest vectorSearchRequest) {
+    public List<VectorSearchResult> search(VectorSearchRequest vectorSearchRequest) throws IOException {
 
         String query = vectorSearchRequest.getQuery();
-        Integer topK = vectorSearchRequest.getTopK();
+        int topK = vectorSearchRequest.getTopK() != null ? vectorSearchRequest.getTopK() : 10;
 
         log.info("开始执行向量搜索: query={}, topK={}", query, topK);
 
-        // 1. query → embedding
-        float[] queryVector = embeddingService.embedQuery(query);
-        log.debug("查询文本向量化完成，向量维度: {}", queryVector.length);
-
-        // 2. 向量检索
-        List<Float> queryVectorList = new ArrayList<>(queryVector.length);
-        for (float v : queryVector) {
-            queryVectorList.add(v);
+        // 1. 生成查询向量
+        float[] queryVectorArray = embeddingService.embedQuery(query);
+        List<Float> queryVector = new ArrayList<>(queryVectorArray.length);
+        for (float v : queryVectorArray) {
+            queryVector.add(v);
         }
+        log.debug("查询文本向量化完成，向量维度: {}", queryVectorArray.length);
 
+        // 2. 统一检索
         List<SearchHit<RagChunkDocument>> searchHits =
-                repository.knnSearch(queryVectorList, topK, topK * 10);
+                ragRetrievalService.search(query, queryVector);
 
-
-        log.info("向量检索完成，返回结果数量: {}", searchHits.size());
+        log.info("检索完成，返回结果数量: {}", searchHits.size());
 
         // 3. 结果转换
         List<VectorSearchResult> results = searchHits.stream().map(hit -> {
-            RagChunkDocument doc = hit.getContent();  // 获取文档实体
+            RagChunkDocument doc = hit.getContent();
             VectorSearchResult r = new VectorSearchResult();
             r.setChunkId(doc.getChunkId());
             r.setSource(doc.getSource());
             r.setChunkIndex(doc.getChunkIndex());
             r.setContent(doc.getContent());
-            r.setScore(hit.getScore());  // 从 SearchHit 获取分数（Float 类型，非 null）
+            r.setScore(hit.getScore());
             return r;
         }).collect(Collectors.toList());
 
