@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import yuuine.ragvector.domain.embedding.service.EmbeddingService;
 import yuuine.ragvector.domain.es.service.VectorAddService;
+import yuuine.ragvector.domain.es.service.VectorDeleteService;
 import yuuine.ragvector.domain.es.service.VectorSearchService;
 import yuuine.ragvector.domain.embedding.model.ResponseResult;
 import yuuine.ragvector.domain.es.model.RagChunkDocument;
@@ -25,6 +26,7 @@ public class VectorController {
     private final EmbeddingService embeddingService;
     private final VectorAddService vectorAddService;
     private final VectorSearchService vectorSearchService;
+    private final VectorDeleteService vectorDeleteService;
 
     @PostMapping("/add")
     public VectorAddResult add(
@@ -60,4 +62,16 @@ public class VectorController {
 
         return results;
     }
+
+    @PostMapping("/delete")
+    public void delete(@RequestBody List<String> fileMd5s) {
+        if (fileMd5s == null || fileMd5s.isEmpty()) {
+            log.warn("收到空的 fileMd5 列表，跳过删除");
+            return;
+        }
+        log.info("接收到批量删除请求，fileMd5 数量: {}", fileMd5s.size());
+        vectorDeleteService.deleteByFileMd5s(fileMd5s);
+        log.info("批量删除成功");
+    }
+
 }
